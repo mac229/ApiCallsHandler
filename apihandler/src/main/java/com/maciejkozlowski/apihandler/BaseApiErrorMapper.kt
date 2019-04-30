@@ -32,14 +32,20 @@ abstract class BaseApiErrorMapper<T>(private val parser: Parser<T>) {
 
     private fun handleHttpException(exception: HttpException): ApiError {
         return when (exception.code()) {
-            HttpURLConnection.HTTP_UNAUTHORIZED -> UnauthorizedError
-            in (400 until 500)                  -> parseBadRequest(exception)
-            in (500 until 600)                  -> ServerError
-            else                                -> UnknownError(exception)
+            in (400 until 500) -> handleBadRequest(exception)
+            in (500 until 600) -> ServerError
+            else               -> UnknownError(exception)
         }
     }
 
-    private fun parseBadRequest(exception: HttpException): ApiError {
+    protected open fun handleBadRequest(exception: HttpException): ApiError {
+        return when (exception.code()) {
+            HttpURLConnection.HTTP_UNAUTHORIZED -> UnauthorizedError
+            else                                -> parseBadRequest(exception)
+        }
+    }
+
+    protected fun parseBadRequest(exception: HttpException): ApiError {
         val errors = parseErrorBodySafely(exception.response().errorBody())
         return if (errors != null && isErrorValid(errors)) {
             createRequestError(errors)
