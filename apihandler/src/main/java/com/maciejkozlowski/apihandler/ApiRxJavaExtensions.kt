@@ -32,10 +32,10 @@ fun handleResult(response: CompletableApiResponse, onComplete: () -> Unit, onErr
     }
 }
 
-private fun <T> Single<T>.mapToSuccessApiResponse(): Single<ApiResponse<T>> {
+fun <T> Single<T>.mapToSuccessApiResponse(): Single<ApiResponse<T>> {
     return map<ApiResponse<T>> { ApiResponse.Success(it) }
 }
 
-private fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
+fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
     return onErrorReturn { mapToApiResponse(it) }
 }
