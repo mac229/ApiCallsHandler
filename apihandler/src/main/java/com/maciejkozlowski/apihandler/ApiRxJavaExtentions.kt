@@ -14,7 +14,7 @@ fun <T> Single<ApiResponse<T>>.subscribeApiCall(onSuccess: (T) -> Unit, onError:
     return subscribe { data -> handleResult(data, onSuccess, onError) }
 }
 
-private fun <T> handleResult(response: ApiResponse<T>, onSuccess: (T) -> Unit, onError: (ApiError) -> Unit) {
+fun <T> handleResult(response: ApiResponse<T>, onSuccess: (T) -> Unit, onError: (ApiError) -> Unit) {
     when (response) {
         is ApiResponse.Success<T> -> onSuccess(response.data)
         is ApiResponse.Error<T>   -> onError(response.error)
@@ -25,9 +25,17 @@ fun Single<CompletableApiResponse>.subscribeApiCall(onComplete: () -> Unit, onEr
     return subscribe { data -> handleResult(data, onComplete, onError) }
 }
 
-private fun handleResult(response: CompletableApiResponse, onComplete: () -> Unit, onError: (ApiError) -> Unit) {
+fun handleResult(response: CompletableApiResponse, onComplete: () -> Unit, onError: (ApiError) -> Unit) {
     when (response) {
         is CompletableApiResponse.Complete -> onComplete()
         is CompletableApiResponse.Error    -> onError(response.error)
     }
+}
+
+private fun <T> Single<T>.mapToSuccessApiResponse(): Single<ApiResponse<T>> {
+    return map<ApiResponse<T>> { ApiResponse.Success(it) }
+}
+
+private fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
+    return onErrorReturn { mapToApiResponse(it) }
 }
