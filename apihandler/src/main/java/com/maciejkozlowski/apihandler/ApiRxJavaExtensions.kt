@@ -37,10 +37,14 @@ fun <T> Single<T>.mapToSuccessApiResponse(): Single<ApiResponse<T>> {
     return map<ApiResponse<T>> { ApiResponse.Success(it) }
 }
 
-fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
-    return onErrorReturn { mapToApiResponse(it) }
-}
-
 fun Completable.mapToCompleteApiResponse(): Single<CompletableApiResponse> {
     return toSingle<CompletableApiResponse> { CompletableApiResponse.Complete }
+}
+
+fun <T> Single<T>.mapToCompleteApiResponse(): Single<CompletableApiResponse> {
+    return map<CompletableApiResponse> { CompletableApiResponse.Complete }
+}
+
+fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
+    return onErrorReturn { mapToApiResponse(it) }
 }
