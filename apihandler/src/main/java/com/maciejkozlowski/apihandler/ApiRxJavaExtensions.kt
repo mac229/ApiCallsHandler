@@ -3,6 +3,7 @@ package com.maciejkozlowski.apihandler
 import com.maciejkozlowski.apihandler.errors.ApiError
 import com.maciejkozlowski.apihandler.response.ApiResponse
 import com.maciejkozlowski.apihandler.response.CompletableApiResponse
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 
@@ -38,4 +39,8 @@ fun <T> Single<T>.mapToSuccessApiResponse(): Single<ApiResponse<T>> {
 
 fun <T> Single<T>.onErrorReturnApiResponse(mapToApiResponse: (Throwable) -> T): Single<T> {
     return onErrorReturn { mapToApiResponse(it) }
+}
+
+fun Completable.mapToCompleteApiResponse(): Single<CompletableApiResponse> {
+    return toSingle<CompletableApiResponse> { CompletableApiResponse.Complete }
 }
